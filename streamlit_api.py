@@ -1,6 +1,6 @@
 import streamlit as st
 import pandas as pd
-import model_functions as mf
+import notebooks.model_functions as mf
 
 st.set_page_config(
     page_title="My Flavour pair recommender",
@@ -19,7 +19,7 @@ with cols[0]:
 with cols[1]:
     n_items = st.number_input("How many would you like back?", min_value=0, max_value = 20,value=5)
 
-similarity_matrix = pd.read_csv("../data/similarity_matrix.csv", index_col=0)
+similarity_matrix = pd.read_csv("data/similarity_matrix.csv", index_col=0)
 closest_items, error_codes = mf.recommend_items(sim_matrix=similarity_matrix, item_name=ingredient, top_n = n_items)
 closest_items = list(closest_items.index)
 
