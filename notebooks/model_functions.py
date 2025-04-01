@@ -73,7 +73,7 @@ def find_closest_word(input_word, word_list=None):
     # print(min_distance)
     return closest_word
 
-def recommend_items(sim_matrix, item_name, top_n=5):
+def recommend_items(sim_matrix, item_names, top_n=5):
     """
     Recommends the top_n most similar items based on cosine similarity.
 
@@ -86,22 +86,27 @@ def recommend_items(sim_matrix, item_name, top_n=5):
         pd.Series: A Pandas Series containing the top_n most similar items and their similarity scores,
                   sorted in descending order of similarity.  Returns an empty series if the item_name is not found.
     """
-    error_codes = []
-    item_name = item_name.lower() #remove capitilazation
-    item_test = re.sub(r'[^a-zA-Z0-9]', '', item_name) #remove punctuation
-    item_list = list(sim_matrix.columns) # create a list of all the items
-    for item in sim_matrix.columns: #remove all punctuation and spaces/capitilzation from that list
-        item_list.append(re.sub(r'[^a-zA-Z0-9]', '', item).lower())
+    item_names = item_names.split(',')
+    item_names = [item.lstrip().rstrip() for item in item_names]
 
-    if item_test not in item_list: #check if our item is in the dataset, if not return the closest result
-        # print(f"Item '{item_name}' not in our dataset")
-        item_name = find_closest_word(item_name, item_list)
-        # print(f"Selected Closest word in list: {item_name}")
-        error_codes.append(f"Word not in list, returning closest '{item_name}'")
-    item_similarity_scores = sim_matrix[item_name].sort_values(ascending = False) 
-    item_similarity_scores = item_similarity_scores.drop(item_name, errors="ignore")
-    
-    return item_similarity_scores.head(top_n), error_codes
+    cleaned_items = []
+    error_codes = []
+    item_list = list(sim_matrix.columns) # create a list of all the items
+    for item_name in item_names: # clean every item in the list
+        item_name = item_name.lower() #remove capitilazation
+        item_test = re.sub(r'[^a-zA-Z0-9 ]', '', item_name) #remove punctuation
+        if item_test not in item_list: #check if our item is in the dataset, if not return the closest result
+            # print(f"Item '{item_name}' not in our dataset")
+            item_test = find_closest_word(item_name, item_list)
+            # print(f"Selected Closest word in list: {item_name}")
+            error_codes.append(f"Ingredient {item_name} not in our recommender yet, returning closest '{item_test}'")
+        cleaned_items.append(item_test)
+
+    similarity_scores_list = [sim_matrix[item].drop(cleaned_items, errors='ignore')for item in cleaned_items]
+    combined_similarity_scores = pd.concat(similarity_scores_list, axis=1).min(axis=1)
+    combined_similarity_scores = combined_similarity_scores.sort_values(ascending=False)
+
+    return combined_similarity_scores.head(top_n), error_codes
 
 def cosine_similarity(vec1, vec2):
     """
