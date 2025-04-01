@@ -73,7 +73,7 @@ def find_closest_word(input_word, word_list=None):
     # print(min_distance)
     return closest_word
 
-def recommend_items(sim_matrix, item_names, top_n=5):
+def recommend_items(sim_matrix, near_items, far_items, top_n=5):
     """
     Recommends the top_n most similar items based on cosine similarity.
 
@@ -86,25 +86,53 @@ def recommend_items(sim_matrix, item_names, top_n=5):
         pd.Series: A Pandas Series containing the top_n most similar items and their similarity scores,
                   sorted in descending order of similarity.  Returns an empty series if the item_name is not found.
     """
-    item_names = item_names.split(',')
-    item_names = [item.lstrip().rstrip() for item in item_names]
+    
+    near_items = near_items.split(',')
 
-    cleaned_items = []
+    near_items = [item.lstrip().rstrip() for item in near_items]
+
+
+    cleaned_near_items = []
+    cleaned_far_items = []
     error_codes = []
+
     item_list = list(sim_matrix.columns) # create a list of all the items
-    for item_name in item_names: # clean every item in the list
+
+    for item_name in near_items: # clean every item in the list
         item_name = item_name.lower() #remove capitilazation
         item_test = re.sub(r'[^a-zA-Z0-9 ]', '', item_name) #remove punctuation
         if item_test not in item_list: #check if our item is in the dataset, if not return the closest result
-            # print(f"Item '{item_name}' not in our dataset")
             item_test = find_closest_word(item_name, item_list)
-            # print(f"Selected Closest word in list: {item_name}")
             error_codes.append(f"Ingredient {item_name} not in our recommender yet, returning closest '{item_test}'")
-        cleaned_items.append(item_test)
+        cleaned_near_items.append(item_test)
 
-    similarity_scores_list = [sim_matrix[item].drop(cleaned_items, errors='ignore')for item in cleaned_items]
-    combined_similarity_scores = pd.concat(similarity_scores_list, axis=1).min(axis=1)
-    combined_similarity_scores = combined_similarity_scores.sort_values(ascending=False)
+    if far_items != "":
+        far_items = far_items.split(',')
+        far_items = [item.lstrip().rstrip() for item in far_items]
+        for item_name in far_items: # clean every item in the list
+            item_name = item_name.lower() #remove capitilazation
+            item_test = re.sub(r'[^a-zA-Z0-9 ]', '', item_name) #remove punctuation
+            if item_test not in item_list: #check if our item is in the dataset, if not return the closest result
+                item_test = find_closest_word(item_name, item_list)
+                error_codes.append(f"Ingredient {item_name} not in our recommender yet, returning closest '{item_test}'")
+            cleaned_far_items.append(item_test)
+    all_items = cleaned_far_items + cleaned_near_items
+
+    #calculate similarity for close items
+    near_similarity_scores_list = [sim_matrix[item].drop(cleaned_near_items, errors='ignore') for item in cleaned_near_items]
+    combined_near_similarity_scores = pd.concat(near_similarity_scores_list, axis=1).min(axis=1)
+    combined_near_similarity_scores = combined_near_similarity_scores.sort_values(ascending=False)
+
+    #calculate dissimilarity for far items
+    far_similarity_scores_list = [sim_matrix[item].drop(cleaned_far_items, errors='ignore') for item in cleaned_far_items]
+    if far_similarity_scores_list:
+        combined_far_similarity_scores = pd.concat(far_similarity_scores_list, axis=1).max(axis=1)
+    else:
+        combined_far_similarity_scores = pd.Series(index=combined_near_similarity_scores.index, data=0)
+    
+    combined_similarity_scores = combined_near_similarity_scores - combined_far_similarity_scores
+    combined_similarity_scores = combined_similarity_scores.drop(all_items, errors='ignore')
+    combined_similarity_scores = combined_similarity_scores.sort_values(ascending = False)
 
     return combined_similarity_scores.head(top_n), error_codes
 
