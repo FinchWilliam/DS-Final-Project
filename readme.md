@@ -52,4 +52,6 @@ This notebook builds the ingredient similarity matrix and demonstrates example i
 
 ### [streamlit_app](streamlit_app.py)
 This file contains the code for the user-friendly Streamlit web application, which provides a GUI for the flavor recommender engine.
+
+Hosted at [Streamlit](https://flavour-recommender.streamlit.app/)
 ![Picture of our GUI](images/GUI.png)
