@@ -10,6 +10,7 @@ Note: Raw datasets are not included to save space. Please download them from the
 ├── DS-Final-Project
 │   ├── README.md
 │   ├── strealit_app.py
+│   ├── requirements.txt
 │   ├── data
 │   │   ├── similarity_matrix.csv
 │   ├── images
