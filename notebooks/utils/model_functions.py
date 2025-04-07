@@ -86,12 +86,12 @@ def recommend_items(sim_matrix, near_items, far_items, top_n=5):
                   sorted in descending order of similarity.  Returns an empty series if the item_name is not found.
     """
     
-    near_items = [item.lstrip().rstrip() for item in near_items.split(',').lower()]
+    near_items = [item.lstrip().rstrip() for item in near_items.lower.split(',')]
 
     item_list = list(sim_matrix.columns) # create a list of all the items
     cleaned_near_items, near_error_codes = _clean_and_validate_items(items=near_items, item_list=item_list)
     if far_items:
-        far_items = [item.lstrip().rstrip() for item in far_items.split(',').lower()]
+        far_items = [item.lstrip().rstrip() for item in far_items.lower.split(',')]
         cleaned_far_items, far_error_codes = _clean_and_validate_items(items=far_items, item_list=item_list)
     else:
         cleaned_far_items = []
