@@ -1,14 +1,55 @@
-# Flavour Recommender Engine
+# Flavour Recommender Engine with Market Basket Analysis
+William Finch 2025
 
-## Using Market Basket Analysis
- - Please note Raw Datasets have not been included to save space, please find raw sets at the linked locations in the [data_loading](notebooks/data_loading.ipynb) notebook
+This project builds a flavor recommender engine that suggests food pairings based on ingredient co-occurrence in a dataset of over 3 million recipes from various sources. The process involves cleaning and standardizing the data.
+
+Note: Raw datasets are not included to save space. Please download them from the links provided in the [Data Loading](notebooks/data_loading.ipynb) notebook.
+
+## File structure
+```
+├── DS-Final-Project
+│   ├── README.md
+│   ├── strealit_app.py
+│   ├── data
+│   │   ├── similarity_matrix.csv
+│   ├── images
+│   │   ├── GUI.png
+│   ├── notebooks
+│   │   ├── utils
+│   │   │   ├── model_functions.py
+│   │   │   └── processing_functions.py
+│   │   ├── data_loading.ipynb
+│   │   ├── EDA.ipynb
+│   │   └── model_building.ipynb
+```
+
+## Notebooks
+
 ### [Data Loading](notebooks/data_loading.ipynb)
- - Load all of our datasets
- - Perform basic cleaning to bring to the same format
- - if you wish to follow along please download the datasets from kaggle that are linked in the descriptions
+This notebook performs the following:
 
+ - Loads datasets from external sources.
 
-1. Already have the data cleaned and prepared as lists in a column of a dataframe
-2. lets try this with 2 methods, cosine similarity and raw counts, can we do raw counts first? (its a project so I like being able to present both options and see which comes out on top)
-3. lets do the cosine for that
-4. finally we need to write a function that will give me these food pairings
+ - Performs basic cleaning to standardize data formats.
+
+ - Saves the cleaned data as a pickle file.
+
+To Use: Download the datasets linked in the notebook and place them in the appropriate directories. Run this notebook first.
+
+### [EDA](notebooks/EDA.ipynb)
+This notebook focuses on data cleaning and preprocessing:
+
+ - Removes irrelevant information and filler words.
+
+ - Filters out infrequent ingredients.
+
+To Use: Run this notebook second, make sure the source path for loading the full databases matches that which you used in Data Loading
+
+### [model_building](notebooks/model_building.ipynb)
+This notebook builds the ingredient similarity matrix and demonstrates example ingredient pairings.
+
+## Streamlit Application
+
+### [streamlit_app](streamlit_app.py)
+This file contains the code for the user-friendly Streamlit web application, which provides a GUI for the flavor recommender engine.
+![Picture of our GUI](images/GUI.png)
